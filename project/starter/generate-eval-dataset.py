@@ -24,6 +24,27 @@ import boto3
 from botocore.config import Config
 from botocore.eventstream import EventStream
 
+from load_env import load_repo_env
+
+load_repo_env()
+
+
+def _strip_thinking(text: str) -> str:
+    """Remove Nova <thinking> spans so the judge scores the customer reply."""
+    out = []
+    rest = text
+    while True:
+        start = rest.find("<thinking>")
+        if start == -1:
+            out.append(rest)
+            break
+        out.append(rest[:start])
+        end = rest.find("</thinking>", start)
+        if end == -1:
+            break
+        rest = rest[end + len("</thinking>"):]
+    return "".join(out).strip()
+
 
 def _event_stream(response):
     """Locate the streaming part of the invoke_harness response."""
@@ -144,7 +165,7 @@ def main():
                     model_id=args.model_id,
                     prompt=prompt,
                 )
-                response_text = result["final_output_text"]
+                response_text = _strip_thinking(result["final_output_text"])
                 n_ok += 1
             except Exception as e:
                 # If the harness errors, still emit a record so the eval

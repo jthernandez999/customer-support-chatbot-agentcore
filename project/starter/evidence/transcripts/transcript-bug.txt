@@ -1,0 +1,16 @@
+session: 154e6e0e-69d2-4222-a6f3-5c5dde3357ad-smoke-bug
+
+you> The product image gallery goes blank when I tap the second thumbnail on the winter coat page.
+bot> 
+Can you please provide the steps you followed to encounter this issue?
+
+you> 1. Open the winter coat product page. 2. Scroll to the image gallery. 3. Tap the second thumbnail.
+bot> 
+Could you please tell me which browser, operating system, and device you are using?
+
+you> Safari 18 on iPhone 15, iOS 18.5
+bot> 
+[tool call] bugreports___create_bug_report
+
+Thank you for the details. I've filed a bug report and your ticket ID is 9252c4e5-cb9c-410c-bae0-d7c730f3bb5d. Our team will look into this issue.
+

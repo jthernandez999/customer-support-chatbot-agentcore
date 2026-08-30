@@ -61,13 +61,27 @@ def lambda_handler(event, context):
     steps = str(event.get("stepsToReproduce") or "").strip()
     environment = str(event.get("environment") or "").strip()
 
-    # All three fields are required and must be non-empty. The model
-    # sometimes tries to satisfy a "required" parameter with an empty
-    # string — returning an error here tells it to go back and ask the
-    # customer instead of filing an incomplete ticket.
+    # All three fields are required and must be real values. Models sometimes
+    # pass empty strings or placeholders (&nbsp;, n/a, unknown) to satisfy
+    # the schema — reject those so the agent asks the customer instead.
+    def _blank(value):
+        cleaned = (
+            value.replace("\xa0", " ")
+            .replace("&nbsp;", " ")
+            .replace("&nbsp", " ")
+            .strip()
+        )
+        if not cleaned:
+            return True
+        return cleaned.lower() in {
+            "unknown", "n/a", "na", "none", "placeholder", "-", "...", "tbd", "null",
+            "not provided", "not specified", "not given", "missing", "none provided",
+            "n/a.", "unknown.", "none.",
+        }
+
     missing = [name for name, value in [("description", description),
                                         ("stepsToReproduce", steps),
-                                        ("environment", environment)] if not value]
+                                        ("environment", environment)] if _blank(value)]
     if missing:
         return {"error": "missing required field(s): " + ", ".join(missing)
                          + ". Ask the customer for them before filing the ticket."}

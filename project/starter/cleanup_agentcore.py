@@ -24,6 +24,10 @@ from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 
+from load_env import load_repo_env
+
+load_repo_env()
+
 
 def is_not_found(exc):
     code = getattr(exc, "response", {}).get("Error", {}).get("Code", "")

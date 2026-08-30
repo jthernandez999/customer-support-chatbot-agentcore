@@ -1,7 +1,12 @@
 **/.DS_Store
+.env
+**/.venv/
+__pycache__/
+*.pyc
 **/planning.md
 lesson-4-prompt-refinement/demos/demo3-evals/eval_responses.jsonl
 demo_guides/*
 scripts/*
 agentcore_config.json
-output_eval_dataset.jsonl
+/output_eval_dataset.jsonl
+harness_arn.txt

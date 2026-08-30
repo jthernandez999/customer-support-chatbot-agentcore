@@ -1,0 +1,5 @@
+session: 274a4516-f79d-4a01-aec9-5f27e65f9344-smoke-other
+
+you> Can you write a short poem about my cat?
+bot> I can't write poems, but I'm here to help with questions about our shop. If you need assistance, feel free to ask! For other inquiries, please call 1-800-555-0199, Monday–Friday.
+

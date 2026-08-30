@@ -1,30 +1,46 @@
-# Purpose of This Repo
+# Customer Support Chatbot with Amazon Bedrock AgentCore
 
-This repo is the source of truth for the course project **"Customer Support Chatbot with Amazon Bedrock AgentCore"** (Prompting for Effective LLM Reasoning). It contains the starter files students use to build the project.
+Course project for **Prompting for Effective LLM Reasoning** (nd905). A support chatbot for a fictional online shop. Routing, bug-report collection, and FAQ answering live in a single system prompt. The AgentCore managed harness runs the agent loop, session memory, and tool calls.
 
-> **Note:** Bedrock *Agents Classic* was closed to new customers on July 30, 2026. This project runs on its successor, the **Amazon Bedrock AgentCore managed harness**, with tools exposed through an **AgentCore Gateway**. Bedrock Evaluations, which the project uses for testing, is unaffected.
+## Three behaviors
 
-## Folder Structure
+1. **Bug reports** — collect description, steps to reproduce, and environment over the conversation, then file a ticket with `bugreports___create_bug_report`.
+2. **Platform questions** — answer from the FAQ embedded in the prompt. If the FAQ does not cover the question, redirect to 1-800-555-0199 (Mon–Fri).
+3. **Anything else** — polite hand-off to the same phone line.
 
-### Project Folder
+## Project files
 
-The `project` folder contains all files and instructions necessary for the project:
+Work from `project/starter/`. Notes, rubric mapping, and evaluation observations are in [`project/starter/README.md`](project/starter/README.md).
 
-* `project/README.md` — the full project instructions (setup, building the harness, testing, cleanup).
-* `project/starter/` — the files students start from:
-  * CloudFormation templates for the bug-report tool (Lambda + DynamoDB + IAM roles) and the testing resources (S3 + evaluation role)
-  * Python setup scripts for the AgentCore resources (`setup_gateway.py`, `create_harness.py`), a chat client (`chat.py`), and cleanup (`cleanup_agentcore.py`)
-  * `system_prompt.txt` — the student's main deliverable
-  * the FAQ document, the evaluation-dataset generator, and a test-suite template
+| File | Role |
+|------|------|
+| `project/starter/system_prompt.txt` | System prompt (main deliverable) |
+| `project/starter/harness-tests.json` | Automated test suite |
+| `project/starter/flow-tests.json` | Same suite (filename from the Flows-era rubric) |
+| `project/starter/evidence/` | Chat transcripts and Bedrock Evaluations output |
 
-The reference solution, rubric, and detailed docs (`docs/tools-setup.md`, `docs/testing.md`) live in the companion solution repo.
+## Setup
 
-### What students build
+Requires AWS credentials for **us-east-1**, Bedrock + AgentCore access, and `us.amazon.nova-pro-v1:0`.
 
-1. Deploy the tool stack (CloudFormation) and create the gateway (`setup_gateway.py`).
-2. Design the system prompt: route each message to bug-report collection, FAQ answering, or a polite human hand-off; collect all bug details across a multi-turn session before filing a ticket with the `create_bug_report` tool.
-3. Create the harness (`create_harness.py`), iterate with `chat.py`.
-4. Test automatically: run a test suite through `generate-eval-dataset.py` and score the results with Bedrock Evaluations.
-5. Clean up all resources.
+```bash
+cd project/starter
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 
-All work happens in **us-east-1**, with the model pinned to `us.amazon.nova-pro-v1:0`.
+aws cloudformation deploy \
+  --template-file cloudformation-tool.yaml \
+  --stack-name bug-report-tool-stack \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region us-east-1
+
+python setup_gateway.py
+python create_harness.py
+python chat.py
+```
+
+```bash
+python generate-eval-dataset.py --tests-json harness-tests.json
+```
+
+Best evaluation job: **support-chatbot-eval-run-2**, Builtin.Correctness **1.000** (7/7).

@@ -28,6 +28,10 @@ from pathlib import Path
 
 import boto3
 
+from load_env import load_repo_env
+
+load_repo_env()
+
 FAQ_PLACEHOLDER = "{{FAQ}}"
 
 # Greedy decoding (temperature 0 + topK 1) is AWS's recommendation for
@@ -125,6 +129,11 @@ def main():
             executionRoleArn=config["harness_execution_role_arn"],
             model=model_config(args.model),
             systemPrompt=[{"text": prompt}],
+            # Conversation state must live only in runtimeSessionId. Managed
+            # long-term memory would leak facts from one chat.py session into
+            # the next (and into eval cases). UpdateHarness wraps the memory
+            # union in optionalValue.
+            memory={"optionalValue": {"disabled": {}}},
         )
     else:
         print(f"Creating harness '{args.name}' (takes ~2-3 minutes)...")
@@ -138,6 +147,7 @@ def main():
                     executionRoleArn=config["harness_execution_role_arn"],
                     model=model_config(args.model),
                     systemPrompt=[{"text": prompt}],
+                    memory={"disabled": {}},
                 )
                 break
             except Exception as exc:  # noqa: BLE001

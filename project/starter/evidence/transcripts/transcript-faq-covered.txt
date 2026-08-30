@@ -1,0 +1,5 @@
+session: 00d9d45d-3965-444d-a1ed-3a94994b3bf5-smoke-faq-covered
+
+you> What is your return policy?
+bot> According to our FAQ, you can return most items within 30 days of delivery as long as they’re unused and in original packaging (unless the item arrived defective).
+

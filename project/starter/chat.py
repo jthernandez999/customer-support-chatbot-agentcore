@@ -26,6 +26,49 @@ import boto3
 from botocore.config import Config
 from botocore.eventstream import EventStream
 
+from load_env import load_repo_env
+
+load_repo_env()
+
+
+class ThinkingFilter:
+    """Drop Amazon Nova <thinking>...</thinking> spans from streamed text."""
+
+    OPEN, CLOSE = "<thinking>", "</thinking>"
+
+    def __init__(self):
+        self.buffer = ""
+        self.hiding = False
+
+    def feed(self, chunk):
+        self.buffer += chunk
+        visible = ""
+        while self.buffer:
+            if self.hiding:
+                end = self.buffer.find(self.CLOSE)
+                if end == -1:
+                    keep = max(0, len(self.buffer) - (len(self.CLOSE) - 1))
+                    self.buffer = self.buffer[keep:]
+                    break
+                self.buffer = self.buffer[end + len(self.CLOSE):]
+                self.hiding = False
+                continue
+            start = self.buffer.find(self.OPEN)
+            if start == -1:
+                keep = max(0, len(self.buffer) - (len(self.OPEN) - 1))
+                visible += self.buffer[:keep]
+                self.buffer = self.buffer[keep:]
+                break
+            visible += self.buffer[:start]
+            self.buffer = self.buffer[start + len(self.OPEN):]
+            self.hiding = True
+        return visible
+
+    def flush(self):
+        leftover = "" if self.hiding else self.buffer
+        self.buffer = ""
+        return leftover
+
 
 def event_stream(response):
     """Locate the streaming part of the invoke_harness response."""
@@ -58,6 +101,7 @@ def invoke(rt, config, session_id, user_text, verbose=False):
 
     texts = []      # completed assistant messages
     buffer = []     # text of the message currently streaming
+    thinking = ThinkingFilter()
     for event in event_stream(response):
         if verbose:
             print(f"\n[event] {json.dumps(event, default=str)}", file=sys.stderr)
@@ -68,12 +112,20 @@ def invoke(rt, config, session_id, user_text, verbose=False):
         elif "contentBlockDelta" in event:
             delta = event["contentBlockDelta"].get("delta", {})
             if "text" in delta:
-                print(delta["text"], end="", flush=True)
+                visible = thinking.feed(delta["text"])
+                if visible:
+                    print(visible, end="", flush=True)
                 buffer.append(delta["text"])
         elif "messageStop" in event:
+            leftover = thinking.flush()
+            if leftover:
+                print(leftover, end="", flush=True)
             if buffer:
                 texts.append("".join(buffer))
                 buffer = []
+    leftover = thinking.flush()
+    if leftover:
+        print(leftover, end="", flush=True)
     if buffer:
         texts.append("".join(buffer))
     print()

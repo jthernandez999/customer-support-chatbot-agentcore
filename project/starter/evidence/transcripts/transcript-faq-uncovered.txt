@@ -1,0 +1,5 @@
+session: 3d6f4057-531e-40a9-a650-15ff6cb0c776-smoke-faq-uncovered
+
+you> Do you offer student discounts?
+bot> This information is not covered in the FAQ. For details on student discounts, please call our support line at 1-800-555-0199, available Monday–Friday.
+

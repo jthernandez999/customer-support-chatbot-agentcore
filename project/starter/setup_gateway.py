@@ -28,6 +28,10 @@ import time
 
 import boto3
 
+from load_env import load_repo_env
+
+load_repo_env()
+
 REGION = "us-east-1"
 
 # JSON Schema the model sees for the tool. All three fields are required:
