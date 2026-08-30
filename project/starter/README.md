@@ -68,10 +68,10 @@ Each eval case runs in a fresh `runtimeSessionId`, so bug tests assert the *star
 | Bug path in the prompt | `system_prompt.txt` BUG REPORT PROCEDURE | Done |
 | Harness + Gateway tool | `support_chatbot` harness, gateway target `bugreports` | Done |
 | Multi-turn collection + tool call | `evidence/transcripts/transcript-bug.txt` — `[tool call] bugreports___create_bug_report` | Done |
-| DynamoDB ticket | ticket `9252c4e5-cb9c-410c-bae0-d7c730f3bb5d` in `bug-report-tool-stack-bug-reports` | Done |
+| DynamoDB ticket | ticket `9252c4e5-cb9c-410c-bae0-d7c730f3bb5d` in `bug-report-tool-stack-bug-reports` — `evidence/dynamodb-ticket.png` | Done |
 | Covered / uncovered FAQ / other | `evidence/transcripts/transcript-faq-covered.txt`, `transcript-faq-uncovered.txt`, `transcript-other.txt` | Done |
 | Automated tests | `harness-tests.json` and `flow-tests.json` | Done |
-| JSONL + Bedrock Evaluations | `output_eval_dataset.jsonl`; jobs `support-chatbot-eval-run-1` and `support-chatbot-eval-run-2` | Done |
+| JSONL + Bedrock Evaluations | `output_eval_dataset.jsonl`; job `support-chatbot-eval-run-2` (Correctness 1.00) — `evidence/eval-results.png` | Done |
 
 ## Testing observations
 
